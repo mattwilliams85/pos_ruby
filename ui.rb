@@ -18,7 +18,6 @@ def header
 	system 'clear'
 	puts "[==== Sales Register ====]"
 	puts "\n"
-	puts RUBY_DESCRIPTION
 end
 
 def invalid
@@ -41,7 +40,7 @@ def main_menu
 		@input = gets.chomp
 		case @input
 		when '1'
-			#clerk_menu
+			login_menu
 		when '2'
 			new_user
 		when '3'
@@ -56,9 +55,9 @@ end
 
 def new_user
 	header
-	puts "Please enter name:"
+	puts "Please enter new user name:"
 	name = gets.chomp
-	puts "Please enter password:"
+	puts "Please enter new user password:"
 	password = gets.chomp
 	new_clerk = Clerk.new(name: name, password: password)
 	if new_clerk.save
@@ -70,4 +69,38 @@ def new_user
 	end
 end
 
+def login_menu
+	header
+	puts "Name:"
+	name = gets.chomp
+	Clerk.all.each do |clerk|
+		if clerk.name == name
+			puts "Password:"
+			password = gets.chomp
+			if clerk.password == password
+				puts "Welcome #{name}!"
+				clerk_menu
+			else 
+				puts "Password incorrect"
+				wait
+				main_menu
+			end
+		else
+			puts "Name incorrect"
+			wait
+			main_menu
+		end
+	end
+end
+
+def clerk_menu
+end
+
 main_menu
+
+
+
+
+
+
+
