@@ -5,18 +5,23 @@ require 'pry'
 
 require './lib/clerk'
 require './lib/item'
-require './lib/purchase'
 require './lib/transaction'
+require './lib/purchase'
+
+require './transaction_ui'
+require './inventory_ui'
 
 database_configuration = YAML::load(File.open('./db/config.yml'))
 development_configuration = database_configuration["development"]
 ActiveRecord::Base.establish_connection(development_configuration)
 
 @input = nil
+@current_clerk = nil
 
 def header
 	system 'clear'
 	puts "[==== Sales Register ====]"
+	puts "User: #{@current_clerk.name if @current_clerk != nil}"
 	puts "\n"
 end
 
@@ -57,7 +62,7 @@ def main_menu
 		@input = gets.chomp
 		case @input
 		when '1'
-			## RETURN TO login_menu after development
+			login_menu
 			clerk_menu
 		when '2'
 			new_user
@@ -96,7 +101,9 @@ def login_menu
 			puts "Password:"
 			password = gets.chomp
 			if clerk.password == password
+				puts "\n"
 				puts "Welcome #{name}!"
+				@current_clerk = clerk
 				wait
 				clerk_menu
 			else 
@@ -133,103 +140,6 @@ def clerk_menu
 			main_menu
 		end
 	end
-end
-
-def new_transaction
-	@transaction = Transaction.create
-	until @input == 'x'
-		header
-		puts ":TRANSACTION ##{@transaction.id}:"
-		puts "1 > Add Item to Cart"
-		puts "2 > Remove Item from Cart"
-		puts "3 > View Cart"
-		puts "4 > Checkout"
-		puts "X > Cancel Transaction"
-		@input = gets.chomp
-		case @input.downcase
-		when '1'
-			add_to_cart
-		when '2'
-			remove_from_cart
-		when '3'
-			view_cart
-			puts "Hit [ENTER] to continue.."
-			gets
-		when '4'
-			checkout
-		when 'x'
-			cancel_transaction
-			main_menu
-		end
-	end
-end
-
-def add_to_cart
-	list_items
-	puts "Enter the item # to add to cart:"
-	id = gets.chomp.to_i
-	puts "Enter the quantity of item:"
-	quantity = gets.chomp
-	item = Item.find(id)
-	total = quantity.to_f * item.price.to_f
-	name = singular?(item.name,quantity)
-	Purchase.create(:item_id => id, :transaction_id => @transaction.id, :quantity => quantity, :total => total)
-	puts "#{quantity} #{name} been added to cart!"
-	long_wait
-end
-
-def view_cart
-	puts "-------------------"
-	Purchase.all.each do |purchase|
-		item = Item.find(purchase.item_id)
-		puts "(##{item.id}) #{purchase.quantity}x #{item.name} = $#{sprintf("%.2f",(purchase.total))}"
-	end
-	puts "\n"
-	puts "TOTAL >> $#{sprintf("%.2f",(Purchase.sum(:total)))}"
-	puts "-------------------"
-end
-
-def remove_from_cart
-	view_cart
-	puts "Please enter the # of the item to remove"
-	item_id = gets.chomp.to_i
-	Purchase.find_by(:item_id => item_id).destroy
-	puts "Item has been removed!"
-	wait
-end
-
-# def checkout
-# 	Purchase.
-# end
-
-def cancel_transaction
-	puts "Your cart has been cleared"
-	Purchase.where(:transaction_id => @transaction.id).destroy_all
-	@transaction.destroy
-	wait
-end
-
-def add_inventory
-	puts "Enter the name of your new item (singular):"
-	name = gets.chomp.downcase.capitalize
-	puts "Enter the price of item (0.00):"
-	price = gets.chomp
-	Item.create({:name => name, :price => price})
-	puts "'#{name}' for $#{price} has been added to the inventory!"
-	long_wait
-end
-
-def update_inventory
-	list_items
-	puts "Enter the # of the item to update:"
-	id = gets.chomp.to_i
-	puts "Enter the new name of the item:"
-	new_name = gets.chomp.downcase.capitalize
-	puts "Enter the new price for the item (0.00):"
-  new_price = gets.chomp
-  Item.find(id).update(:name => new_name, :price => new_price)
-  puts "Item ##{id} will now be #{new_name} for $#{new_price}!"
-  long_wait
 end
 
 main_menu
