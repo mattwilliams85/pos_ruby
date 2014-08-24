@@ -85,15 +85,15 @@ def login_menu
 				wait
 				main_menu
 			end
-		else
-			puts "Name incorrect"
-			wait
-			main_menu
 		end
 	end
+	puts "Name incorrect"
+	wait
+	main_menu
 end
 
 def clerk_menu
+
 end
 
 main_menu
