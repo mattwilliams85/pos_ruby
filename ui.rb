@@ -38,13 +38,13 @@ end
 def singular?(name, quantity)
   result = name + "s have" 
 	result = name + " has" if quantity.to_i == 1
-	result = name + "' have" if name(-1) == s && quantity.to_i > 1
+	result = name + "' have" if name[-1] == 's' && quantity.to_i > 1
 	return result
 end
 
 def list_items
 	puts "-------------------"
-	Item.all.sort.each {|i| puts "##{i.id} - #{i.name}"}
+	Item.all.sort.each {|i| puts "#(#{i.id}) #{i.name} - $#{i.price}"}
 	puts "-------------------"
 end
 
@@ -158,8 +158,7 @@ def new_transaction
 		when '4'
 			checkout
 		when 'x'
-			puts "Your cart has been cleared"
-			wait
+			cancel_transaction
 			main_menu
 		end
 	end
@@ -172,9 +171,9 @@ def add_to_cart
 	puts "Enter the quantity of item:"
 	quantity = gets.chomp
 	item = Item.find(id)
+	total = quantity.to_f * item.price.to_f
 	name = singular?(item.name,quantity)
-	Purchase.create(:item_id => id, :transaction_id => @transaction.id, :quantity => quantity)
-	binding.pry
+	Purchase.create(:item_id => id, :transaction_id => @transaction.id, :quantity => quantity, :total => total)
 	puts "#{quantity} #{name} been added to cart!"
 	long_wait
 end
@@ -183,8 +182,10 @@ def view_cart
 	puts "-------------------"
 	Purchase.all.each do |purchase|
 		item = Item.find(purchase.item_id)
-		puts "(##{item.id}) #{purchase.quantity}x #{item.name} = $#{sprintf("%.2f",(purchase.quantity * item.price))}"
+		puts "(##{item.id}) #{purchase.quantity}x #{item.name} = $#{sprintf("%.2f",(purchase.total))}"
 	end
+	puts "\n"
+	puts "TOTAL >> $#{sprintf("%.2f",(Purchase.sum(:total)))}"
 	puts "-------------------"
 end
 
@@ -200,6 +201,13 @@ end
 # def checkout
 # 	Purchase.
 # end
+
+def cancel_transaction
+	puts "Your cart has been cleared"
+	Purchase.where(:transaction_id => @transaction.id).destroy_all
+	@transaction.destroy
+	wait
+end
 
 def add_inventory
 	puts "Enter the name of your new item (singular):"
