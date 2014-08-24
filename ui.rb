@@ -35,10 +35,12 @@ def long_wait
 	sleep 1.5
 end 
 
-# def singular?
-#   @name = @name + "s have" 
-# 	@name = @name + " has" if @quantity.to_i == 1
-# end
+def singular?(name, quantity)
+  result = name + "s have" 
+	result = name + " has" if quantity.to_i == 1
+	result = name + "' have" uf name(-1) == s && quantity.to_i > 1
+	return result
+end
 
 def list_items
 	puts "-------------------"
@@ -131,6 +133,48 @@ def clerk_menu
 			main_menu
 		end
 	end
+end
+
+def new_transaction
+	@transaction = Transaction.create
+	until @input == 'x'
+		header
+		puts ":TRANSACTION ##{@transaction.id}:"
+		puts "1 > Add Item to Cart"
+		puts "2 > Remove Item from Cart"
+		puts "3 > View Cart"
+		puts "4 > Checkout"
+		puts "X > Cancel Transaction"
+		@input = gets.chomp
+		case @input.downcase
+		when '1'
+			add_to_cart
+		when '2'
+			remove_from_cart
+		when '3'
+			view_cart
+		when '4'
+			checkout
+		when 'x'
+			puts "Your cart has been cleared"
+			wait
+			main_menu
+		end
+	end
+end
+
+def add_to_cart
+	list_items
+	puts "Enter the item # to add to cart:"
+	id = gets.chomp.to_i
+	puts "Enter the quantity of item:"
+	quantity = gets.chomp
+	item = Item.find(id)
+	name = singular?(item.name,quantity)
+	Purchase.create(:item_id => id, :transaction_id => @transaction.id, :quantity => quantity)
+	binding.pry
+	puts "#{quantity} #{name} been added to cart!"
+	long_wait
 end
 
 def add_inventory
