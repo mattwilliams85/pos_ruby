@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Clerk do
+describe Item do
   it { should validate_presence_of :name }
-  it { should validate_presence_of :password }
+  it { should validate_presence_of :price }
 end

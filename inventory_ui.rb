@@ -3,8 +3,9 @@ def add_inventory
 	name = gets.chomp.downcase.capitalize
 	puts "Enter the price of item (0.00):"
 	price = gets.chomp
-	Item.create({:name => name, :price => price})
-	puts "'#{name}' for $#{price} has been added to the inventory!"
+	item = Item.create({:name => name, :price => price})
+	puts "Invalid Entry!" if item.errors.any?
+	puts "'#{name}' for $#{price} has been added to the inventory!" if item.errors.none?
 	long_wait
 end
 
@@ -16,7 +17,9 @@ def update_inventory
 	new_name = gets.chomp.downcase.capitalize
 	puts "Enter the new price for the item (0.00):"
     new_price = gets.chomp
-    Item.find(id).update(:name => new_name, :price => new_price)
-    puts "Item ##{id} will now be #{new_name} for $#{new_price}!"
+    item = Item.find_by(:id => id)
+    item.update(:name => new_name, :price => new_price) if item != nil 
+    puts "Invalid Entry!" if item == false || item == nil
+    puts "Item ##{id} will now be #{new_name} for $#{new_price}!" if item == true
     long_wait
 end

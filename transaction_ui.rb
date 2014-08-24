@@ -38,8 +38,9 @@ def add_to_cart
 	item = Item.find(id)
 	total = quantity.to_f * item.price.to_f
 	name = singular?(item.name,quantity)
-	Purchase.create(:item_id => id, :transaction_id => @transaction.id, :quantity => quantity, :total => total)
-	puts "#{quantity} #{name} been added to cart!"
+	purchase = Purchase.create(:item_id => id, :transaction_id => @transaction.id, :quantity => quantity, :total => total)
+	puts "Invalid Entry!" if purchase.errors.any?
+	puts "#{quantity} #{name} been added to cart!" if purchase.errors.none?
 	long_wait
 end
 
