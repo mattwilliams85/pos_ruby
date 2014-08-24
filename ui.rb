@@ -38,7 +38,7 @@ end
 def singular?(name, quantity)
   result = name + "s have" 
 	result = name + " has" if quantity.to_i == 1
-	result = name + "' have" uf name(-1) == s && quantity.to_i > 1
+	result = name + "' have" if name(-1) == s && quantity.to_i > 1
 	return result
 end
 
@@ -153,6 +153,8 @@ def new_transaction
 			remove_from_cart
 		when '3'
 			view_cart
+			puts "Hit [ENTER] to continue.."
+			gets
 		when '4'
 			checkout
 		when 'x'
@@ -176,6 +178,28 @@ def add_to_cart
 	puts "#{quantity} #{name} been added to cart!"
 	long_wait
 end
+
+def view_cart
+	puts "-------------------"
+	Purchase.all.each do |purchase|
+		item = Item.find(purchase.item_id)
+		puts "(##{item.id}) #{purchase.quantity}x #{item.name} = $#{sprintf("%.2f",(purchase.quantity * item.price))}"
+	end
+	puts "-------------------"
+end
+
+def remove_from_cart
+	view_cart
+	puts "Please enter the # of the item to remove"
+	item_id = gets.chomp.to_i
+	Purchase.find_by(:item_id => item_id).destroy
+	puts "Item has been removed!"
+	wait
+end
+
+# def checkout
+# 	Purchase.
+# end
 
 def add_inventory
 	puts "Enter the name of your new item (singular):"
