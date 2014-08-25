@@ -12,9 +12,10 @@ This project simulates an item checkout system for clerks ringing up customers.
 
 **How to Use:** 
 
-- Setup Clone this repository or download the .zip and open up the index.html file in the browser.
-- Once in the correct directory, enter 'ruby ui.rb' into the command line. 
-- Create a new user then login to access the main program.
+1. Setup Clone this repository or download the .zip and open up the index.html file in the browser.
+2. Once in the correct directory, run 'rake db:create', then 'rake db:migrate'
+3. Enter 'ruby ui.rb' into the command line. 
+3. Create a new user then login to access the main program.
 
 **Future Goals**
 
@@ -22,8 +23,8 @@ This project simulates an item checkout system for clerks ringing up customers.
 - Sort items by date.
 - Support for limited inventory and cash funds.
 
-Dependencies 
-rspec 
-ruby 2.1.0
-active record
-shoulda matchers
+**Dependencies** 
+- rspec 
+- ruby 2.1.0
+- active record
+- shoulda matchers

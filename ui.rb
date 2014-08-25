@@ -119,12 +119,13 @@ def login_menu
 end
 
 def clerk_menu
-		until @input == '4'
+		until @input == '5'
 		header
 		puts "1 > New Transaction"
 		puts "2 > Add Inventory"
 		puts "3 > Update Inventory"
-		puts "4 > Return to Main Menu"
+		puts "4 > View recent sales"
+		puts "5 > Return to Main Menu"
 		@input = gets.chomp
 		case @input
 		when '1'
@@ -134,12 +135,25 @@ def clerk_menu
 		when '3'
 			update_inventory
 		when '4'
+			recent_sales
+		when '5'
+			@current_clerk = nil
 			main_menu
 		else 
 			invalid 
-			main_menu
 		end
 	end
+end
+
+def recent_sales
+	puts "-------------------"
+	Purchase.today.each do |purchase|
+		item = Item.find(purchase.item_id)
+		puts "(##{item.id}) #{purchase.quantity}x #{item.name} = $#{sprintf("%.2f",(purchase.total))}"
+	end
+	puts "-------------------"
+	puts "Hit [ENTER] to continue..."
+	gets
 end
 
 main_menu
